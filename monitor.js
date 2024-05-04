@@ -1,12 +1,11 @@
 const axios = require("axios");
 const chokidar = require("chokidar");
 const fs = require("fs");
-const path =
-  "D:/Projects/properymate-jobs/temp/.azurite/data/__azurite_db_blob__.json";
-const watchPath = "D:/Projects/properymate-jobs/temp/.azurite/data";
-const localEventUrl = "http://localhost:8044/v1/event-listener/event";
-
-// const watcher = chokidar.watch(watchPath, { ignored: /^\./, persistent: true });
+require("dotenv").config();
+//env variables
+const path = process.env.PATH_TO_METADATA_FILE;
+// env variables
+const localEventUrl = process.env.LOCAL_EVENT_LISTENER_URL;
 const watcher = chokidar.watch(path, { persistent: true });
 
 watcher.on("change", () => {
@@ -22,7 +21,7 @@ watcher.on("change", () => {
         (c) => c.name === "$BLOBS_COLLECTION$"
       ).data;
 
-       blobs.sort(
+      blobs.sort(
         (a, b) =>
           new Date(b.properties.lastModified) -
           new Date(a.properties.lastModified)
@@ -30,9 +29,7 @@ watcher.on("change", () => {
 
       if (blobs.length > 0) {
         const latestBlob = blobs[0];
-        const message = createServiceBusMessage(
-            latestBlob
-        );
+        const message = createServiceBusMessage(latestBlob);
         console.log(latestBlob);
         console.log("Sending message to local event listener...");
         console.log(JSON.stringify(message, null, 2));
@@ -87,5 +84,3 @@ function createServiceBusMessage(blob) {
   };
 }
 console.log(`Watching for changes in: ${path}`);
-
-console.log("Watching for file changes in", watchPath);
