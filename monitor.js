@@ -79,7 +79,10 @@ function startMonitoring(path, localEventUrl, blobContainerName) {
           if (blobs.length > 0) {
             const latestBlob = blobs[0];
             //check if the blob container name is provided
-            if (blobContainerName && blob.containerName !== blobContainerName) {
+            if (
+              blobContainerName &&
+              latestBlob.containerName !== blobContainerName
+            ) {
               return;
             }
             const message = createServiceBusMessage(latestBlob);
