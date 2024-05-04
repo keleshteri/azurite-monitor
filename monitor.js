@@ -52,7 +52,7 @@ function validateInputs(path, localEventUrl) {
 /**
  * Start monitoring the metadata file for changes and send the latest blob to the local event listener.
  */
-function startMonitoring(path, localEventUrl) {
+function startMonitoring(path, localEventUrl, blobContainerName) {
   try {
     validateInputs(path, localEventUrl);
     const watcher = chokidar.watch(path, { persistent: true });
@@ -65,6 +65,7 @@ function startMonitoring(path, localEventUrl) {
         }
         try {
           const json = JSON.parse(data);
+          
           const blobs = json.collections.find(
             (c) => c.name === "$BLOBS_COLLECTION$"
           ).data;
@@ -77,6 +78,10 @@ function startMonitoring(path, localEventUrl) {
 
           if (blobs.length > 0) {
             const latestBlob = blobs[0];
+            //check if the blob container name is provided
+            if (containerName && blob.containerName !== containerName) {
+              return;
+            }
             const message = createServiceBusMessage(latestBlob);
             console.log(latestBlob);
             console.log("Sending message to local event listener...");
