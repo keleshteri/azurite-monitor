@@ -40,6 +40,16 @@ function createServiceBusMessage(blob) {
  * Start monitoring the metadata file for changes and send the latest blob to the local event listener.
  */
 function startMonitoring(path, localEventUrl) {
+  //check if the path is valid
+  if (!fs.existsSync(path)) {
+    console.error(`File not found: ${path}`);
+    return;
+  }
+  //check local event listener url
+  if (!localEventUrl) {
+    console.error("Local event listener URL is required.");
+    return;
+  }
   const watcher = chokidar.watch(path, { persistent: true });
   watcher.on("change", () => {
     console.log(`Detected change in metadata file: ${path}`);
