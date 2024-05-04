@@ -1,7 +1,6 @@
 const axios = require("axios");
 const chokidar = require("chokidar");
 const fs = require("fs");
-require("dotenv").config();
 
 /**
  *  Create a Service Bus message from a blob object.
@@ -40,9 +39,7 @@ function createServiceBusMessage(blob) {
 /**
  * Start monitoring the metadata file for changes and send the latest blob to the local event listener.
  */
-function startMonitoring() {
-  const path = process.env.PATH_TO_METADATA_FILE;
-  const localEventUrl = process.env.LOCAL_EVENT_LISTENER_URL;
+function startMonitoring(path, localEventUrl) {
   const watcher = chokidar.watch(path, { persistent: true });
   watcher.on("change", () => {
     console.log(`Detected change in metadata file: ${path}`);
