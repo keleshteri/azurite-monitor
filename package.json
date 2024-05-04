@@ -1,6 +1,6 @@
 {
   "name": "@keleshteri/azurite-monitor",
-  "version": "1.0.4",
+  "version": "1.1.4",
   "description": "Monitor Azurite blob storage for changes and send events.",
   "main": "monitor.js",
   "scripts": {
