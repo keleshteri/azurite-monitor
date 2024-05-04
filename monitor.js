@@ -3,6 +3,43 @@ const chokidar = require("chokidar");
 const fs = require("fs");
 require("dotenv").config();
 
+/**
+ *  Create a Service Bus message from a blob object.
+ * @param {*} blob
+ * @returns
+ */
+function createServiceBusMessage(blob) {
+  return {
+    body: {
+      topic: "local-topic",
+      subject: `blobServices/default/containers/${blob.containerName}/blobs/${blob.name}`,
+      eventType: "Microsoft.Storage.BlobCreated",
+      id: blob.$loki,
+      data: {
+        api: "PutBlob",
+        clientRequestId: "local-client-request-id",
+        requestId: "local-request-id",
+        eTag: blob.properties.eTag,
+        contentType: blob.properties.contentType,
+        contentLength: blob.properties.contentLength,
+        blobType: blob.properties.blobType,
+        //blob.core.windows.net
+        blobUrl: `https://devstoreaccount1.blob.core.windows.net/${blob.containerName}/${blob.name}`,
+        url: `https://devstoreaccount1.blob.core.windows.net/${blob.containerName}/${blob.name}`,
+        // blobUrl: `https://pmatedemostorage.localhost.local/${blob.containerName}/${blob.name}`,
+        // url: `https://pmatedemostorage.localhost.local/${blob.containerName}/${blob.name}`,
+        sequencer: "00000000000000000000000000000000",
+        identity: "$superuser",
+      },
+      dataVersion: "",
+      metadataVersion: "1",
+      eventTime: new Date().toISOString(),
+    },
+  };
+}
+/**
+ * Start monitoring the metadata file for changes and send the latest blob to the local event listener.
+ */
 function startMonitoring() {
   const path = process.env.PATH_TO_METADATA_FILE;
   const localEventUrl = process.env.LOCAL_EVENT_LISTENER_URL;
@@ -54,36 +91,4 @@ function startMonitoring() {
   console.log(`Watching for changes in: ${path}`);
 }
 
-//
-// Function to create a Service Bus message from a blob
-function createServiceBusMessage(blob) {
-  return {
-    body: {
-      topic: "local-topic",
-      subject: `blobServices/default/containers/${blob.containerName}/blobs/${blob.name}`,
-      eventType: "Microsoft.Storage.BlobCreated",
-      id: blob.$loki,
-      data: {
-        api: "PutBlob",
-        clientRequestId: "local-client-request-id",
-        requestId: "local-request-id",
-        eTag: blob.properties.eTag,
-        contentType: blob.properties.contentType,
-        contentLength: blob.properties.contentLength,
-        blobType: blob.properties.blobType,
-        //blob.core.windows.net
-        blobUrl: `https://devstoreaccount1.blob.core.windows.net/${blob.containerName}/${blob.name}`,
-        url: `https://devstoreaccount1.blob.core.windows.net/${blob.containerName}/${blob.name}`,
-        // blobUrl: `https://pmatedemostorage.localhost.local/${blob.containerName}/${blob.name}`,
-        // url: `https://pmatedemostorage.localhost.local/${blob.containerName}/${blob.name}`,
-        sequencer: "00000000000000000000000000000000",
-        identity: "$superuser",
-      },
-      dataVersion: "",
-      metadataVersion: "1",
-      eventTime: new Date().toISOString(),
-    },
-  };
-}
-
-startMonitoring();
+module.exports = startMonitoring;

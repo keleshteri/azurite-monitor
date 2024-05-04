@@ -1,13 +1,13 @@
 {
   "name": "@keleshteri/azurite-monitor",
   "version": "1.0.0",
-  "description": "Azurite Monitor",
+  "description": "Monitor Azurite blob storage for changes and send events.",
   "main": "monitor.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node start.js"
   },
   "keywords": [],
-  "author": "mehdi.shaban.keleshteri@gmail.com",
+  "author": "Mohammad Mehdi Shaban Keleshteri <mehdi.shaban.keleshteri@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.6.8",
