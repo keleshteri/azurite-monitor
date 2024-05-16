@@ -19,7 +19,7 @@ function generateBlobUrl(baseUrl, containerName, blobName) {
  */
 function createServiceBusMessage(
   blob,
-  baseUrl = "https://devstoreaccount1.blob.core.windows.net"
+  baseUrl = "http://devstoreaccount1.127.0.0.1:10000"
 ) {
   return {
     body: {
