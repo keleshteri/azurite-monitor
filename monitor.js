@@ -3,11 +3,24 @@ const chokidar = require("chokidar");
 const fs = require("fs");
 
 /**
+ * Generate a blob URL from the base URL, container name, and blob name.
+ * @param {string} baseUrl
+ * @param {string} containerName
+ * @param {string} blobName
+ * @returns {string}
+ * */
+function generateBlobUrl(baseUrl, containerName, blobName) {
+  return `${baseUrl}/${containerName}/${blobName}`;
+}
+/**
  *  Create a Service Bus message from a blob object.
  * @param {*} blob
  * @returns
  */
-function createServiceBusMessage(blob) {
+function createServiceBusMessage(
+  blob,
+  baseUrl = "https://devstoreaccount1.blob.core.windows.net"
+) {
   return {
     body: {
       topic: "local-topic",
@@ -23,8 +36,8 @@ function createServiceBusMessage(blob) {
         contentLength: blob.properties.contentLength,
         blobType: blob.properties.blobType,
         //blob.core.windows.net
-        blobUrl: `https://devstoreaccount1.blob.core.windows.net/${blob.containerName}/${blob.name}`,
-        url: `https://devstoreaccount1.blob.core.windows.net/${blob.containerName}/${blob.name}`,
+        blobUrl: generateBlobUrl(baseUrl, blob.containerName, blob.name),
+        url: generateBlobUrl(baseUrl, blob.containerName, blob.name),
         // blobUrl: `https://pmatedemostorage.localhost.local/${blob.containerName}/${blob.name}`,
         // url: `https://pmatedemostorage.localhost.local/${blob.containerName}/${blob.name}`,
         sequencer: "00000000000000000000000000000000",
@@ -52,7 +65,7 @@ function validateInputs(path, localEventUrl) {
 /**
  * Start monitoring the metadata file for changes and send the latest blob to the local event listener.
  */
-function startMonitoring(path, localEventUrl, blobContainerName) {
+function startMonitoring(path, localEventUrl, blobContainerName, baseUrl) {
   try {
     validateInputs(path, localEventUrl);
     const watcher = chokidar.watch(path, { persistent: true });
@@ -65,7 +78,7 @@ function startMonitoring(path, localEventUrl, blobContainerName) {
         }
         try {
           const json = JSON.parse(data);
-          
+
           const blobs = json.collections.find(
             (c) => c.name === "$BLOBS_COLLECTION$"
           ).data;
@@ -85,7 +98,7 @@ function startMonitoring(path, localEventUrl, blobContainerName) {
             ) {
               return;
             }
-            const message = createServiceBusMessage(latestBlob);
+            const message = createServiceBusMessage(latestBlob, baseUrl);
             console.log(latestBlob);
             console.log("Sending message to local event listener...");
             console.log(JSON.stringify(message, null, 2));
